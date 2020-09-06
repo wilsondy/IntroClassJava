@@ -30,20 +30,20 @@ def parseType(type):
 		return None
 	name = name.text
 	if name == "int" or name == "integer":
-		prevType = "IntObj"
-		return "IntObj"
+		prevType = "int"
+		return "int"
 	elif name == "char":
-		prevType = "CharObj"
-		return "CharObj"
+		prevType = "char"
+		return "char"
 	elif name == "float":
-		prevType = "FloatObj"
-		return "FloatObj"
+		prevType = "float"
+		return "float"
 	elif name == "long":
-		prevType = "LongObj"
-		return "LongObj"
+		prevType = "long"
+		return "long"
 	elif name == "double":
-		prevType = "DoubleObj"
-		return "DoubleObj"
+		prevType = "double"
+		return "double"
 	return name
 
 def parseParameters(parameter_list):
@@ -115,8 +115,8 @@ def parseDecl(typeDecl, content = "", type=None, parent=None):
 			type = "float"
 		variables[name] = type;
 		content = type + "[]" + ' ' + name 
-		if parentType != "parameter_list":
-			content += " = new " + type + parseElement(nameIndex)
+		#if parentType != "parameter_list":
+		#	content += " = new " + type + parseElement(nameIndex)
 		nameElem.remove(nameIndex)
 	else:
 		name = parseElement(nameElem)
@@ -124,15 +124,15 @@ def parseDecl(typeDecl, content = "", type=None, parent=None):
 		variables[name] = type;
 		content += name
 	if len(typeDecl) == 0:
-		if(nameIndex is None):
-			if parentType != "parameter_list":
-				return content + " = new " + type + "()"
+		# if(nameIndex is None):
+		# 	if parentType != "parameter_list":
+		# 		return content + " = new " + type + "()"
 		return content
 	elem = typeDecl[0]
 	(tag, dd) = parseTag(elem.tag)
 	if tag == "init":
-		if parentType != "parameter_list":
-			content += " = new " + type + "(" + parseElement(elem[0]) + ")"
+		# if parentType != "parameter_list":
+		# 	content += " = new " + type + "(" + parseElement(elem[0]) + ")"
 		typeDecl.remove(elem)
 		if len(typeDecl) == 0:
 			return content
@@ -182,6 +182,9 @@ def parseExpr (expr):
 	content = ""
 	if(expr[0].text == "*"):
 		expr.remove(expr[0])
+
+	if(expr[0].text == "&"):
+		expr.remove(expr[0])
 	prev = None
 	for elem in expr:
 		#if(prev is not None and parseTag(prev.tag)[0] == "operator" and (elem.text == "*" )) :
@@ -191,8 +194,8 @@ def parseExpr (expr):
 			continue
 		content += string
 		prev = elem
-	for variable in variables:
-		content = content.replace("&%s.value" % variable, "%s.value" % variable)
+	#for variable in variables:
+	#	content = content.replace("&s" % variable, "%s" % variable)
 	return content
 
 def parseReturn (content):
@@ -285,19 +288,19 @@ def parseCall (methodCall):
 				continue
 			else:
 				type = variables[key]
-				if type == "DoubleObj":
+				if type == "double":
 					content += indent + arg + ' = scanner.nextDouble();\n'
-				elif type == "IntObj":
+				elif type == "int":
 					content += indent + arg + ' = scanner.nextInt();\n'
-				elif type == "CharObj":
+				elif type == "char":
 					content += indent + ("try {\n" + 
 					indent + "    " + arg + ' = scanner.findInLine(".").charAt(0);\n' + 
 					indent + "} catch (java.lang.NullPointerException e) {\n" + 
 					indent + "    " + arg + " = '\\n';\n" + 
 					indent + "} \n")
-				elif type == "LongObj":
+				elif type == "long":
 					content += indent + arg + ' = scanner.nextLong();\n'
-				elif type == "FloatObj":
+				elif type == "float":
 					content += indent + arg + ' = scanner.nextFloat();\n'
 				else:
 					content += indent + arg + ' = scanner.next().toCharArray();\n'
@@ -536,7 +539,7 @@ def parseElement(elem, parent=None):
 				content += contentTmp
 		return  content
 	print elem
-	raise 
+
 	pass
 
 def parseTag(tag):
@@ -580,14 +583,10 @@ def init():
 			ids[projectName] = 1
 		id = ids[projectName]
 		print "%s_%d (%d/%d, %2.2f%%) %s" % (projectName, id, total, totalCfile, float(total) / float(totalCfile) * 100, datetime.timedelta(seconds=int(time.time() - startTime)))
-		className = (projectName + "_" + projectUser[0:8] + "_" + projectUserVersion)
+		className = "main" #(projectName + "_" + projectUser[0:8] + "_" + projectUserVersion)
 		header = """package introclassJava;
 
-class IntObj {public int value; public IntObj(){} public IntObj(int i){value = i;}}
-class FloatObj {public float value; public FloatObj(){} public FloatObj(float i){value = i;}}
-class LongObj {public long value; public LongObj(){} public LongObj(long i){value = i;}}
-class DoubleObj {public double value; public DoubleObj(){} public DoubleObj(double i){value = i;}}
-class CharObj {public char value; public CharObj(){} public CharObj(char i){value = i;}}
+
 public class %s {
 	public java.util.Scanner scanner;
 	public String output = "";
@@ -631,45 +630,45 @@ public class %s {
 		fo = open(filePath + '/%s.java' % className, 'w+')
 		fo.write(header + content)
 		fo.close()
-		p = subprocess.Popen("""cd %s/../../../../;
-	MAVEN_OPTS= -XX:TieredStopAtLevel=1
-	mvn -T 1C test -am --offline
-	""" % (filePath), shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-		out, err = p.communicate()
-		regexbb = re.compile(ur'BlackboxTest\nTests run: (\d+), Failures: (\d+), Errors: (\d+), Skipped: (\d+)')
-		matchObjbb = re.search(regexbb, out)
-		regexwb = re.compile(ur'WhiteboxTest\nTests run: (\d+), Failures: (\d+), Errors: (\d+), Skipped: (\d+)')
-		matchObjwb = re.search(regexwb, out)
-		result = {
-			"projectName": projectName,
-			"projectUser": projectUser,
-			"projectUserVersion": projectUserVersion,
-			"compiled": False,
-			'bbko': 0,
-			'bbok': 0,
-			'wbko': 0,
-			'wbok': 0
-		}
-		if matchObjbb is not None:
-			result["compiled"] = True
-			result["bbko"] = int(matchObjbb.group(2))
-			result["bbok"] =  int(matchObjbb.group(1)) - result["bbko"]
-			result["wbko"] = int(matchObjwb.group(2))
-			result["wbok"] =  int(matchObjwb.group(1)) - result["wbko"]
-		else:
-			regex2 = re.compile(ur'OK \((\d+) tests\)')
-			matchObj = re.search(regex2, out)
-			if matchObj is not None:
-				result["compiled"] = True
-				result["failing"] = 0
-				result["passed"] = int(matchObj.group(1))
-			else:
-				result["error"] = out
-				errors += 1
-				print id, filename, out 
-		results["%s/%s/%s" % (projectName, projectUser, projectUserVersion)] = result
+	# 	p = subprocess.Popen("""cd %s/../../../../;
+	# MAVEN_OPTS= -XX:TieredStopAtLevel=1
+	# mvn -T 1C test -am
+	# """ % (filePath), shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+	# 	out, err = p.communicate()
+	# 	regexbb = re.compile(ur'AllTest\nTests run: (\d+), Failures: (\d+), Errors: (\d+), Skipped: (\d+)')
+	# 	matchObjbb = re.search(regexbb, out)
+	# 	regexwb = re.compile(ur'AllTest\nTests run: (\d+), Failures: (\d+), Errors: (\d+), Skipped: (\d+)')
+	# 	matchObjwb = re.search(regexwb, out)
+	# 	result = {
+	# 		"projectName": projectName,
+	# 		"projectUser": projectUser,
+	# 		"projectUserVersion": projectUserVersion,
+	# 		"compiled": False,
+	# 		'bbko': 0,
+	# 		'bbok': 0,
+	# 		'wbko': 0,
+	# 		'wbok': 0
+	# 	}
+	# 	if matchObjbb is not None:
+	# 		result["compiled"] = True
+	# 		result["bbko"] = int(matchObjbb.group(2))
+	# 		result["bbok"] =  int(matchObjbb.group(1)) - result["bbko"]
+	# 		result["wbko"] = int(matchObjwb.group(2))
+	# 		result["wbok"] =  int(matchObjwb.group(1)) - result["wbko"]
+	# 	else:
+	# 		regex2 = re.compile(ur'OK \((\d+) tests\)')
+	# 		matchObj = re.search(regex2, out)
+	# 		if matchObj is not None:
+	# 			result["compiled"] = True
+	# 			result["failing"] = 0
+	# 			result["passed"] = int(matchObj.group(1))
+	# 		else:
+	# 			result["error"] = out
+	# 			errors += 1
+	# 			print id, filename, out
+	# 	results["%s/%s/%s" % (projectName, projectUser, projectUserVersion)] = result
 		id += 1
-		saveResults()
+		# saveResults()
 		ids[projectName] = id
 
 def createPom(projectName, projectUser, projectUserVersion):
@@ -694,6 +693,11 @@ def createPom(projectName, projectUser, projectUserVersion):
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 		</dependency>
+		<dependency>
+      		<groupId>org.apache.maven.surefire</groupId>
+      		<artifactId>surefire-junit4</artifactId>
+      		<version>2.17</version>
+    	</dependency>
 	</dependencies>
 </project>
 """ % (projectName,  projectUser, projectUserVersion)
@@ -704,15 +708,31 @@ def createPom(projectName, projectUser, projectUserVersion):
 	fo.write(content)
 	pass
 
-def createTest(name, className, tests):
+def createTest(name, className, tests, blacktests):
 	content = """package introclassJava;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-public class %s%sTest {
-""" % (className, name)
+public class %s%s {
+""" % ("AllTest", "")
 	for test in sorted(tests):
-		base = os.path.basename(test).replace(".in", "")
+		base = os.path.basename(test).replace(".in", "white")
+		f = open(test, 'r')
+		input_data = f.read().strip(' \t\n\r').replace("\n", " ").replace('"', '\\"')
+		f = open(test.replace(".in", ".out"), 'r')
+		expected_data = f.read().strip(' \t\n\r').replace("\n", " ").replace('"', '\\"')
+		content+="""
+	@Test(timeout=1000)
+	public void test%s() throws Exception {
+		%s mainClass = new %s();
+		String expected = "%s";
+		mainClass.scanner = new java.util.Scanner("%s");
+		mainClass.exec();
+		String out = mainClass.output.replace("\\n"," ").trim();
+		assertEquals(expected.replace(" ",""), out.replace(" ",""));
+	}""" % (base, className, className, expected_data, input_data)
+	for test in sorted(blacktests):
+		base = os.path.basename(test).replace(".in", "black")
 		f = open(test, 'r')
 		input_data = f.read().strip(' \t\n\r').replace("\n", " ").replace('"', '\\"')
 		f = open(test.replace(".in", ".out"), 'r')
@@ -734,14 +754,15 @@ def createTestClass(file, projectName, projectUser, projectUserVersion):
 	testPath = os.path.join(os.path.dirname(file), '../../tests/')
 	whitebox = glob.glob("/" + testPath + "whitebox/*.in" )
 	blackbox = glob.glob("/" + testPath + "blackbox/*.in" )
-
+	print(testPath )
 	filePath = os.path.join(os.path.dirname(__file__), '../dataset', projectName, projectUser, projectUserVersion, "src/test/java/introclassJava" )
 	if not os.path.exists(filePath):
 		os.makedirs(filePath)
-	fo = open(filePath + '/%sWhiteboxTest.java' % (projectName + '_' + projectUser[0:8] + '_' + projectUserVersion), 'w+')
-	fo.write(createTest("Whitebox", (projectName + '_' + projectUser[0:8] + '_' + projectUserVersion), whitebox))
-	fo = open(filePath + '/%sBlackboxTest.java' % (projectName + '_' + projectUser[0:8] + '_' + projectUserVersion) , 'w+')
-	fo.write(createTest("Blackbox", (projectName + '_' + projectUser[0:8] + '_' + projectUserVersion), blackbox))
+	#fo = open(filePath + '/AllTests.java' % (projectName + '_' + projectUser[0:8] + '_' + projectUserVersion), 'w+')
+	fo = open(filePath + '/AllTest.java', 'w+')
+	fo.write(createTest("Whitebox", "main", whitebox, blackbox))
+	#fo = open(filePath + '/%sBlackboxTest.java' % (projectName + '_' + projectUser[0:8] + '_' + projectUserVersion) , 'w+')
+	#fo.write(createTest("Blackbox", (projectName + '_' + projectUser[0:8] + '_' + projectUserVersion), blackbox))
 
 def saveResults():
 	global results, rootDataset
