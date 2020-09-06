@@ -13,18 +13,16 @@ public class main {
 		} else {
 			mainClass.scanner = new java.util.Scanner(System.in);
 		}
-		mainClass.exec();
+		
 		System.out.println(mainClass.output);
 	}
 
-    public void exec () throws Exception {
-        int a, b, c, median, temp;
+    public int exec (int a, int b, int c) throws Exception {
+        int median, temp;
         median = 0;
         temp = 0;
         output += (String.format("Please enter 3 numbers separated by spaces > "));
-        a = scanner.nextInt();
-        b = scanner.nextInt();
-        c = scanner.nextInt();
+        
         if(a >= b){
             temp = b;
             b = a;
@@ -37,7 +35,6 @@ public class main {
         }         else {
             median = a;
         }
-        output += (String.format("%d is the median\n", median));
-        if(true)return;;
+        return median;
     }
 }

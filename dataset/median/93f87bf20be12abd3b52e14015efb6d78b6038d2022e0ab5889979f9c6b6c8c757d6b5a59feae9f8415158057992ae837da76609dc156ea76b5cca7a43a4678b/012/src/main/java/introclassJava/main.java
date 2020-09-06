@@ -13,23 +13,22 @@ public class main {
 		} else {
 			mainClass.scanner = new java.util.Scanner(System.in);
 		}
-		mainClass.exec();
+
 		System.out.println(mainClass.output);
 	}
 
-    public void exec () throws Exception {
-        int int1, int2, int3;
+    public int exec (int int1, int int2, int int3) throws Exception {
+
         output += (String.format("Please enter 3 numbers separated by spaces > "));
-        int1 = scanner.nextInt();
-        int2 = scanner.nextInt();
-        int3 = scanner.nextInt();
+
         if(((int1 <= int2) && (int1 >= int3)) || ((int1 <= int2) && (int1 >= int3))){
-            output += (String.format("%d is the median\n", int1));
+            return int1;
         } else if((((int2 <= int1)) && (int2 >= int3)) || ((int2 <= int3) && (int2 >= int1))){
-            output += (String.format("%d is the median\n", int2));
+            return int2;
         }         else if(((int3 <= int1) && (int3 >= int2)) || ((int3 <= int2) && (int3 >= int1))){
-            output += (String.format("%d is the median\n", int3));
+            return int3;
         }
-        if(true)return;;
+        //dgw
+        return -1;
     }
 }

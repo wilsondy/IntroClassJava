@@ -13,25 +13,24 @@ public class main {
 		} else {
 			mainClass.scanner = new java.util.Scanner(System.in);
 		}
-		mainClass.exec();
+
 		System.out.println(mainClass.output);
 	}
 
-    public void exec () throws Exception {
-        int x, y, z;
+    public int exec (int x, int y, int z) throws Exception {
+
         output += (String.format("Please enter 3 numbers separated by spaces > "));
-        x = scanner.nextInt();
-        y = scanner.nextInt();
-        z = scanner.nextInt();
+
         if(x == y){
-            output += (String.format("%d is the median\n", x));
+            return x;
         }
         if(x == z){
-            output += (String.format("%d is the median\n", x));
+            return x;
         }
         if(y == z){
-            output += (String.format("%d is the median\n", y));
+            return y;
         }
-        if(true)return;;
+        //dgw added to make it compile
+        return -1;
     }
 }

@@ -13,16 +13,14 @@ public class main {
 		} else {
 			mainClass.scanner = new java.util.Scanner(System.in);
 		}
-		mainClass.exec();
+
 		System.out.println(mainClass.output);
 	}
 
-    public void exec () throws Exception {
-        double n1, n2, n3, median;
+    public int exec (double n1, double n2, double n3) throws Exception {
+        double median;
         output += (String.format("Please enter 3 numbers separated by spaces > "));
-        n1 = scanner.nextDouble();
-        n2 = scanner.nextDouble();
-        n3 = scanner.nextDouble();
+
         if(n1 >= n2 || n1 >= n3)
     {
             if(n2 >= n3 && n1 >= n2)
@@ -37,6 +35,7 @@ public class main {
         }         else {
             median = n2;
         }
-        output += (String.format(" %.0f is the median\n", median));
+        //dgw added cast to match expected and since there were no math operations above
+        return (int) median;
     }
 }

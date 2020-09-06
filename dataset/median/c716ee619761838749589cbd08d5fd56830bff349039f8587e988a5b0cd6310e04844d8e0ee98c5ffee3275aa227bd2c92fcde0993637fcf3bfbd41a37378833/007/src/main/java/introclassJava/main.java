@@ -13,37 +13,35 @@ public class main {
 		} else {
 			mainClass.scanner = new java.util.Scanner(System.in);
 		}
-		mainClass.exec();
+		
 		System.out.println(mainClass.output);
 	}
 
-    public void exec () throws Exception {
-        int A, B, C;
+    public int exec (int A, int B, int C) throws Exception {
+
         output += (String.format("Please enter 3 numbers separated by spaces > "));
-        A = scanner.nextInt();
-        B = scanner.nextInt();
-        C = scanner.nextInt();
+
         if(A == B && A == C){
-            output += (String.format("%d is the median\n", A));
+            return A;
         } else if(A > B && A < C){
-            output += (String.format("%d is the median\n", A));
+            return A;
         }         else if(A > C && A < B){
-            output += (String.format("%d is the median\n", A));
+            return A;
         }         else if(B > C && B < A){
-            output += (String.format("%d is the median\n", B));
+            return B;
         }         else if(B > A && B < C){
-            output += (String.format("%d is the median\n", B));
+            return B;
         }         else if(C > A && C < B){
-            output += (String.format("%d is the median\n", C));
+            return C;
         }         else if(C > B && C < A){
-            output += (String.format("%d is the median\n", C));
+            return C;
         }         else if(A == B){
-            output += (String.format("%d is the median\n", B));
+            return B;
         }         else if(A == C){
-            output += (String.format("%d is the median\n", C));
+            return C;
         }         else if(C == B){
-            output += (String.format("%d is the median\n", C));
+            return C;
         }
-        if(true)return;;
+        return -1;
     }
 }
